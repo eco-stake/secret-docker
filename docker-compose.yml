@@ -1,0 +1,32 @@
+version: '2'
+
+services:
+  aesm:
+    image: enigmampc/aesm
+    devices:
+      - /dev/isgx
+      # - /dev/sgx
+    volumes:
+      - /tmp/aesmd:/var/run/aesmd
+    stdin_open: true
+    tty: true
+  node:
+    build: .
+    ports:
+      - '26656:26656'
+      - '26657:26657'
+      - '1317:1317'
+    ulimits:
+      nofile: 100000
+    environment:
+      - SGX_MODE=HW
+      - SECRETD_MONIKER=Secret Node
+      #- SECRETD_P2P_PERSISTENT_PEERS=
+      - SECRETD_MINIMUM_GAS_PRICES=0.025uscrt
+    devices:
+      - /dev/isgx
+    volumes:
+      - /tmp/aesmd:/var/run/aesmd
+      - ./.secretd:/root/.secretd
+      - ./.secretcli:/root/.secretcli
+      - ./.sgx_secrets:/root/.sgx_secrets
